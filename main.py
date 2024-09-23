@@ -2,6 +2,7 @@
 from notificador import Notification, NotificationService
 from elasticsearch import Elasticsearch
 from notificadorConfig import notification_service
+from logger import logger
 import dotenv
 import os
 
@@ -22,18 +23,24 @@ class IndexMonitor:
                 
         response = self.elasticsearch_client.search(index=self.index_name, body=query)
         results = response["hits"]["hits"]
+        logger.info(f"Found {len(results)} non-processed alerts")
         return results
     
     def mark_as_processed(self, alert_id) -> None:
-        self.elasticsearch_client.update(
-            index=self.index_name,
-            id=alert_id,
-            body={
-                "doc": {
-                    "processed": True
+        logger.debug(f"Marking alert {alert_id} as processed")
+        try:
+            self.elasticsearch_client.update(
+                index=self.index_name,
+                id=alert_id,
+                body={
+                    "doc": {
+                        "processed": True
+                    }
                 }
-            }
-        )
+            )
+            logger.info(f"Alert {alert_id} marked as processed successfully")
+        except Exception as e:
+            logger.error(f"Failed to mark alert {alert_id} as processed: {str(e)}")
 
 
     def build_message(self, alerts: list) -> Notification:
@@ -50,6 +57,9 @@ class IndexMonitor:
             self.notification_service.send_notification(notification)
             for alert in alerts:
                 self.mark_as_processed(alert["_id"])
+            logger.info("Notification sent successfully")
+        else:
+            logger.info("No alerts to send")
 
 
 
