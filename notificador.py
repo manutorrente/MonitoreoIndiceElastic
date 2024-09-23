@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from email.mime.text import MIMEText
 
 class Notification:
     def __init__(self, body, subject):
@@ -17,8 +18,11 @@ class EmailNotification(NotificationMethod):
         self.recipient = recipient
 
     def send(self, notification: Notification) -> None:
-        self.SMTPClient.send_email(self.recipient, notification.body , notification.subject)
-
+        msg = MIMEText(notification.body)
+        msg['Subject'] = notification.subject
+        msg['From'] = "alerts@example.com"
+        msg['To'] = self.recipient
+        self.SMTPClient.send_message(msg)
 
 class SlackNotification(NotificationMethod):
     def __init__(self, SlackClient, channel):
@@ -26,7 +30,7 @@ class SlackNotification(NotificationMethod):
         self.channel = channel
 
     def send(self, notification: Notification) -> None:
-        self.SlackClient.send_message(self.channel, notification.body)
+        self.SlackClient.chat_postMessage(channel=self.channel, text=notification.body)
 
 
 class NotificationService:

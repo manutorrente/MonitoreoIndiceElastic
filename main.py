@@ -1,4 +1,9 @@
 
+from notificador import Notification, NotificationService
+from elasticsearch import Elasticsearch
+from notificadorConfig import notification_service
+import dotenv
+import os
 
 class IndexMonitor:
     def __init__(self, elasticsearch_client, notification_service: NotificationService, index_name):
@@ -7,28 +12,28 @@ class IndexMonitor:
         self.index_name = index_name
 
     def find_non_processed_alerts(self) -> list:
-        query = f"GET /{self.index_name}/_search" + """
-                    {
+        query ={
                     "query": {
                         "match": {
-                        "processed": "false"
+                        "processed": False
                         } 
                     }
-                    }
-                """
-        response = self.elasticsearch_client.search(query)
+                }
+                
+        response = self.elasticsearch_client.search(index=self.index_name, body=query)
         results = response["hits"]["hits"]
         return results
     
     def mark_as_processed(self, alert_id) -> None:
-        query = f"POST /{self.index_name}/_update/{alert_id}" + """
-                    {
-                    "doc": {
-                        "processed": true
-                    }
-                    }
-                """
-        self.elasticsearch_client.update(query)
+        self.elasticsearch_client.update(
+            index=self.index_name,
+            id=alert_id,
+            body={
+                "doc": {
+                    "processed": True
+                }
+            }
+        )
 
 
     def build_message(self, alerts: list) -> Notification:
@@ -50,29 +55,22 @@ class IndexMonitor:
 
 def main() -> None:
     # Set up Elasticsearch client
-    es_client = Elasticsearch("http://172.16.0.28:9200")
+    dotenv.load_dotenv()
+    es_user = os.getenv("ELASTICSEARCH_USERNAME")
+    es_pass = os.getenv("ELASTICSEARCH_PASSWORD")
+    es_client = Elasticsearch(
+        ['https://172.16.0.28:9200'],
+        timeout=1000,
+        basic_auth=(es_user, es_pass),
+        verify_certs=False
+    )
 
-    # Set up SMTP client
-    smtp_client = smtplib.SMTP('smtp.example.com', 587)
-    smtp_client.starttls()
-    smtp_client.login('username', 'password')
-
-    # Set up Slack client
-    slack_client = WebClient(token="your-slack-token")
-
-    # Create notification methods
-    email_notification = EmailNotification(smtp_client, "admin@example.com")
-    slack_notification = SlackNotification(slack_client, "#alerts")
-
-    # Create notification service
-    notification_service = NotificationService([email_notification, slack_notification])
 
     # Create and run index monitor
     index_monitor = IndexMonitor(es_client, notification_service, "test_alerts")
     index_monitor.monitor()
 
     # Clean up
-    smtp_client.quit()
 
 
 if __name__ == "__main__":
