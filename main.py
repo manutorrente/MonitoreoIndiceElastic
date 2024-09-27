@@ -54,7 +54,11 @@ class IndexMonitor:
         alerts = self.find_non_processed_alerts()
         if alerts:
             notification = self.build_message(alerts)
-            self.notification_service.send_notification(notification)
+            try:
+                self.notification_service.send_notification(notification)
+            except RuntimeError:
+                logger.error("Failed to send notification, alerts will not be marked as processed")
+                return
             for alert in alerts:
                 self.mark_as_processed(alert["_id"])
             logger.info("Notification sent successfully")

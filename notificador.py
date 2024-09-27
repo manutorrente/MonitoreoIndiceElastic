@@ -39,8 +39,13 @@ class NotificationService:
         self.notification_methods = notification_methods
 
     def send_notification(self, notification: Notification) -> None:
+        notification_sent = False
         for notification_method in self.notification_methods:
             try:
                 notification_method.send(notification)
+                notification_sent = True
             except Exception as e:
-                logger.error(f"Failed to send notification via {notification_method.__class__.__name__}: {str(e)}")
+                logger.error(f"Failed to send notification via {notification_method.__class__.__name__}: {str(e)} for notification: {notification.body}")
+        if not notification_sent:
+            logger.error("Failed to send notification via any method for notification: {notification.body}")
+            raise RuntimeError("Failed to send notification via any method")
