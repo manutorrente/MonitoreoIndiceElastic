@@ -13,9 +13,9 @@ class IndexMonitor:
         self.index_name = index_name
 
     def find_non_processed_alerts(self) -> list:
-        query ={
+        query = {
                     "query": {
-                        "match": {
+                        "term": {
                         "processed": False
                         } 
                     }
