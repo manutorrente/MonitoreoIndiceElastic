@@ -68,8 +68,9 @@ def main() -> None:
     dotenv.load_dotenv()
     es_user = os.getenv("ELASTICSEARCH_USERNAME")
     es_pass = os.getenv("ELASTICSEARCH_PASSWORD")
+    es_url = os.getenv("ELASTICSEARCH_URL")
     es_client = Elasticsearch(
-        ['https://172.16.0.28:9200'],
+        [es_url],
         timeout=1000,
         basic_auth=(es_user, es_pass),
         verify_certs=False
