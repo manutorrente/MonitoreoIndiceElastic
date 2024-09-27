@@ -65,10 +65,11 @@ class IndexMonitor:
 
 def main() -> None:
     # Set up Elasticsearch client
-    dotenv.load_dotenv()
+    dotenv.load_dotenv(override=True)
     es_user = os.getenv("ELASTICSEARCH_USERNAME")
     es_pass = os.getenv("ELASTICSEARCH_PASSWORD")
     es_url = os.getenv("ELASTICSEARCH_URL")
+    logger.info(f"Connecting to Elasticsearch at {es_url}")
     es_client = Elasticsearch(
         [es_url],
         timeout=1000,
