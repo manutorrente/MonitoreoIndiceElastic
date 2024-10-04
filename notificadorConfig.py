@@ -11,9 +11,9 @@ dotenv.load_dotenv()
 ###############
 
 
-email_sender = os.getenv("GMAIL_USERNAME")
-email_password = os.getenv("GMAIL_PASSWORD")
-email_receiver = "mtorrente@dblandit.com"
+# email_sender = os.getenv("GMAIL_USERNAME")
+# email_password = os.getenv("GMAIL_PASSWORD")
+# email_receiver = None
 slack_channel = "#code"
 #smtp_client = SMTPGMail(email_sender, email_password)
 slack_client = WebClient(token=os.getenv("SLACK_TOKEN"), proxy = os.getenv("PROXY"))

@@ -47,7 +47,8 @@ class IndexMonitor:
         subject = f"Alerts for {self.index_name}"
         message = ""
         for alert in alerts:
-            message += f"Alert: {alert['_source']['data']['metric']} on {alert['_source']['data']['mount_point']} with value {alert['_source']['data']['value']}\n"
+            fields = alert["_source"]["data"]
+            message += f"Alert on timestamp {alert["_source"]["timestamp"]}: \n" + [f"{key}: {value}" for key, value in fields.items()].join("\n") + "/n"
         return Notification(message, subject)
 
     def monitor(self) -> None:
