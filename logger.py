@@ -1,10 +1,13 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import dotenv
+
+dotenv.load_dotenv()
 
 
 ################# CONFIG ##############
-log_directory = "/path/to/your/log/directory"
+log_directory = os.getenv("LOG_DIRECTORY")
 logfile_name = "monitoreo_elastic.log"
 ######################################
 

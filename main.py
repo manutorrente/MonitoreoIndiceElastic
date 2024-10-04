@@ -84,7 +84,7 @@ def main() -> None:
 
 
     # Create and run index monitor
-    index_monitor = IndexMonitor(es_client, notification_service, "test_alerts")
+    index_monitor = IndexMonitor(es_client, notification_service, os.getenv("ELASTICSEARCH_INDEX_NAME"))
     index_monitor.monitor()
 
     # Clean up
