@@ -2,14 +2,17 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 
-# Define the directory where log files will be stored
+
+################# CONFIG ##############
 log_directory = "/path/to/your/log/directory"
+logfile_name = "monitoreo_elastic.log"
+######################################
 
 # Create the directory if it doesn't exist
 os.makedirs(log_directory, exist_ok=True)
 
 # Define the log file path
-log_file = os.path.join(log_directory, "app.log")
+log_file = os.path.join(log_directory, logfile_name)
 
 # Create a logger
 logger = logging.getLogger(__name__)
